@@ -1,0 +1,5 @@
+D:\新しいフォルダー (2)\sudoku\sudoku.exe
+D:\新しいフォルダー (2)\sudoku\sudoku.dll
+D:\新しいフォルダー (2)\sudoku\sudoku.deps.json
+D:\新しいフォルダー (2)\sudoku\sudoku.runtimeconfig.json
+D:\新しいフォルダー (2)\sudoku\sudoku.pdb

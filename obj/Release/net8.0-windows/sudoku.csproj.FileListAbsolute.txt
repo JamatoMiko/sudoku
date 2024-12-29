@@ -1,0 +1,15 @@
+D:\新しいフォルダー (3)\C#\sudoku\bin\Release\net8.0-windows\sudoku.exe
+D:\新しいフォルダー (3)\C#\sudoku\bin\Release\net8.0-windows\sudoku.deps.json
+D:\新しいフォルダー (3)\C#\sudoku\bin\Release\net8.0-windows\sudoku.runtimeconfig.json
+D:\新しいフォルダー (3)\C#\sudoku\bin\Release\net8.0-windows\sudoku.dll
+D:\新しいフォルダー (3)\C#\sudoku\bin\Release\net8.0-windows\sudoku.pdb
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\sudoku.GeneratedMSBuildEditorConfig.editorconfig
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\sudoku.AssemblyInfoInputs.cache
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\sudoku.AssemblyInfo.cs
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\sudoku.csproj.CoreCompileInputs.cache
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\sudoku.sourcelink.json
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\sudoku.dll
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\refint\sudoku.dll
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\sudoku.pdb
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\sudoku.genruntimeconfig.cache
+D:\新しいフォルダー (3)\C#\sudoku\obj\Release\net8.0-windows\ref\sudoku.dll
