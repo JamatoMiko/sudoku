@@ -12,3 +12,4 @@ d:\新しいフォルダー (3)\C#\sudoku\obj\Debug\net8.0-windows\refint\sudoku
 d:\新しいフォルダー (3)\C#\sudoku\obj\Debug\net8.0-windows\sudoku.pdb
 d:\新しいフォルダー (3)\C#\sudoku\obj\Debug\net8.0-windows\sudoku.genruntimeconfig.cache
 d:\新しいフォルダー (3)\C#\sudoku\obj\Debug\net8.0-windows\ref\sudoku.dll
+d:\新しいフォルダー (3)\C#\sudoku\obj\Debug\net8.0-windows\sudoku.sourcelink.json

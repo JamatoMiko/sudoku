@@ -31,7 +31,9 @@ partial class Form1
         this.components = new System.ComponentModel.Container();
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         this.ClientSize = new System.Drawing.Size(960, 540);//アスペクト比16:9
-        this.Text = "Form1";
+        this.Text = "Sudoku Game";
+        this.MaximizeBox = false;//最大化できないように
+        this.FormBorderStyle = FormBorderStyle.FixedSingle;//サイズ変更できないように
     }
     #endregion
 }

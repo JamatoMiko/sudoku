@@ -13,10 +13,35 @@ namespace sudoku;
 ・使う解法
 ・空ける穴の数
 ・候補の数のバランス
-空ける穴の抽選を埋まっているマスが多いブロックや行、列を優先する
+Done空ける穴の抽選を埋まっているマスが多いブロックや行、列を優先する
 使う解法を柔軟に指定した解法を少なくとも1回は用いるように
 候補の絞り込みが成功したらその回数をカウントするようにする
 solutionの配列を返すようにする？
+
+今のままだとVery Easyが難しい
+別の難易度の評価基準を設ける
+候補の数の平均を少なくする？、候補が一つのマスを多くする？
+そもそもCRBE法を実装する？
+CRBE法はすでに最初の候補を調べるときに使っている方法
+実際にはわかっている数字が多いものに着目してその数字が入るマスが一つに絞られたら埋めていく
+やっぱり候補の数字と候補のマスのバランスを考える
+Very Easyは単一候補法だけで解けるようにするので、候補の数を少なくするように空けていく
+現段階でも単一候補法だけで解けるけど、一個ずつ埋めていかないといけないから難しい
+同時にいくつもマスを埋めれるようにする
+
+同時に穴を空けられるようになったけれど
+今のままだと、組み合わせで解けないだけのマスが試行済みにカウントされてしまう
+
+ペンシルマークの絞り込みをメソッドにして、絞り込みに使用した解法の回数を返すようにする、Solverで絞り込みを起動するたびに結果を加算していく、Generatorで合計の回数を受け取って評価する
+
+ランダムに穴を開けていく
+できた盤面の難易度を評価
+難易度が低すぎたり難しすぎる場合はやり直す
+
+JSONファイル
+id =
+board =
+solution =
 
 共有候補法が強力っぽい
 
@@ -59,7 +84,6 @@ public class Board
         {0, 0, 5,  4, 0, 0,  0, 8, 0},
         {0, 0, 0,  0, 2, 3,  0, 0, 0},
     };
-    public bool[,] _changeable = new bool[9, 9];//変更できるか
     public List<int>[,] _pencilMark = new List<int>[9, 9];//候補のリスト、ペンシルマーク
     public List<int>[] _block = new List<int>[9];//ブロックごとのリスト
     public List<int>[] _row = new List<int>[9];//行ごとのリスト
@@ -81,13 +105,12 @@ public class Board
             for (int col = 0; col < 9; col++)
             {
                 SetCell(row, col, board.GetCell(row, col));
-                //_changeable[row, col] = board._changeable[row, col];
-                _uniqueCandidate = board._uniqueCandidate;
-                _uniqueCell = board._uniqueCell;
-                _twins = board._twins;
-                _triplets = board._triplets;
-                _commonCandidate = board._commonCandidate;
-                _diagonalLine = board._diagonalLine;
+                //_uniqueCandidate = board._uniqueCandidate;
+                //_uniqueCell = board._uniqueCell;
+                //_twins = board._twins;
+                //_triplets = board._triplets;
+                //_commonCandidate = board._commonCandidate;
+                //_diagonalLine = board._diagonalLine;
             }
         }
     }
@@ -100,7 +123,6 @@ public class Board
             _col[i] = new List<int>();
             for (int j = 0; j < 9; j++)
             {
-                _changeable[i, j] = true;
                 _pencilMark[i, j] = new List<int>();
             }
         }
@@ -113,11 +135,8 @@ public class Board
     }
     public void SetCell(int row, int col, int num = 0)//_boardに数字を入力
     {
-        if (_changeable[row, col] == true)
-        {
-            _board[row, col] = num;
-            UpdateInformation();//情報を更新
-        }
+        _board[row, col] = num;
+        UpdateInformation();//情報を更新
     }
     public void InitializeBoard()//盤面を全て空にする
     {
@@ -129,24 +148,7 @@ public class Board
             }
         }
     }
-    public void GlueBoard()//現在埋まっているマスを変更できなくする
-    {
-        for (int row = 0; row < 9; row++)
-        {
-            for (int col = 0; col < 9; col++)
-            {
-                if (GetCell(row, col) > 0)
-                {
-                    _changeable[row, col] = false;
-                }
-                else
-                {
-                    _changeable[row, col] = true;
-                }
-            }
-        }
-    }
-    public void Generator(Difficulty difficulty)//指定された難易度の問題を作成する
+    public void Generator(Difficulty difficulty, out Board solution)//指定された難易度の問題を作成し、Board型の解を返す
     {
         switch (difficulty)
         {
@@ -185,12 +187,14 @@ public class Board
         }
         //埋められた盤面を作成
         GenerateCompletedBoard();
+        solution = new Board(this);
         //1.盤面を保存
         //2.1マス空けてSolverを起動
         //3.解けなかった場合保存てあった盤面に戻して2に戻る
         //4.解けた場合1に戻る
         int blank = 0;
-        int maxBlank = 80;//後で変更
+        int maxBlank = 80;//後で変更、難易度による
+        int tryNum = 1;//同時に空ける穴の数、後で変更、ランダムにする?
         var preBoard = new int[9, 9];
         while (blank < maxBlank)
         {
@@ -213,22 +217,43 @@ public class Board
             var triedCell = new bool[9, 9];
             while (true)
             {
-                int row;
-                int col;
+                int[] row = new int[tryNum];
+                int[] col = new int[tryNum];
+                bool flag = false;
                 while (true)
                 {
-                    row = StartingCell(blockCounts[targetIndex].Block).Row + random.Next(0, 3);
-                    col = StartingCell(blockCounts[targetIndex].Block).Col + random.Next(0, 3);
-                    if (GetCell(row, col) > 0)//数字が存在する場合
+                    for (int i = 0; i < tryNum; i++)
                     {
-                        if (!triedCell[row, col])//まだ試していない場合
+                        row[i] = StartingCell(blockCounts[targetIndex].Block).Row + random.Next(0, 3);
+                        col[i] = StartingCell(blockCounts[targetIndex].Block).Col + random.Next(0, 3);
+                        if (GetCell(row[i], col[i]) > 0)//数字が存在する場合
                         {
+                            if (!triedCell[row[i], col[i]])//まだ試していない場合
+                            {
+                                flag = true;
+                            }
+                            else
+                            {
+                                flag = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            flag = false;
                             break;
                         }
                     }
+                    if (flag)
+                    {
+                        break;
+                    }
                 }
                 //穴をあける
-                SetCell(row, col, 0);
+                for (int i = 0; i < tryNum; i++)
+                {
+                    SetCell(row[i], col[i], 0);
+                }
                 if (Solver())//解けた場合
                 {
                     //元の盤面に戻す
@@ -240,7 +265,10 @@ public class Board
                         }
                     }
                     //穴をあける
-                    SetCell(row, col, 0);
+                    for (int i = 0; i < tryNum; i++)
+                    {
+                        SetCell(row[i], col[i], 0);
+                    }
                     blank++;
                     break;
                 }
@@ -254,7 +282,10 @@ public class Board
                             SetCell(i, j, preBoard[i, j]);
                         }
                     }
-                    triedCell[row, col] = true;//試行済みする
+                    for (int i = 0; i < tryNum; i++)
+                    {
+                        triedCell[row[i], col[i]] = true;//試行済みする
+                    }
                     int untriedCell = 0;
                     for (int i = 0; i < 3; i++)
                     {
@@ -274,7 +305,6 @@ public class Board
                         targetIndex++;//次に多いブロックに変更
                         if (targetIndex > 8)
                         {
-                            GlueBoard();//埋まっているマスを変更不可にする
                             DebugBoard();
                             Debug.WriteLine($"{blank}/{maxBlank}");
                             return;
@@ -283,7 +313,6 @@ public class Board
                 }
             }
         }
-        GlueBoard();//埋まっているマスを変更不可にする
         DebugBoard();
         Debug.WriteLine($"{blank}/{maxBlank}");
     }
